@@ -109,7 +109,7 @@ This stack ensures scalability, security, and a great user experience. Do you wa
 
 --- 
 
-🗓 Week 4: User Dashboard & Engagement
+🗓 Week 4: User Dashboard & Engagements
 
 ✅ Day 22-23: Build a user dashboard (manage reports, posts, and account settings).
 
