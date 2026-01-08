@@ -1,16 +1,41 @@
 const mongoose = require("mongoose");
-const crypto = require("crypto");
 
-const IncidentSchema = new mongoose.Schema({
-  incident_id: { type: String, default: () => crypto.randomUUID(), unique: true },
-  user_id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // referencing User
-  title: { type: String, required: true },
-  description: { type: String, required: true },
-  incident_type: { type: String, enum: ["phishing", "hacking", "scam", "data breach", "ransomware"], required: true },
-  evidence: { type: String }, // File path or link
-  status: { type: String, enum: ["pending", "under review", "resolved"], default: "pending" },
-  reported_at: { type: Date, default: Date.now },
-  verified_by: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // Expert who verifies // referencing User
+const incidentSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+  affectedSystems: {
+    type: String,
+    required: true,
+  },
+  impact: {
+    type: String,
+    required: true,
+  },
+  status: {
+    type: String,
+    enum: ["Open", "Investigating", "Resolved", "Closed"],
+    default: "Open",
+  },
+  priority: {
+    type: String,
+    enum: ["Low", "Medium", "High", "Critical"],
+    default: "Medium",
+  },
+  user_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User", // Connects this incident to the User who reported it
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
-module.exports = mongoose.model("Incident", IncidentSchema);
+module.exports = mongoose.model("Incident", incidentSchema);

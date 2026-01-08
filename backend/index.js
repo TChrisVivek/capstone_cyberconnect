@@ -7,6 +7,7 @@ const userRoutes = require('./routes/userRoutes');
 const incidentRoutes = require('./routes/incidentRoutes');
 const threatRoutes = require('./routes/threatRoutes');
 const verificationRoutes = require('./routes/verificationRoutes');
+const complaintRoutes = require("./routes/complaintRoutes");
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/incidents', incidentRoutes);
 app.use('/api/threats', threatRoutes);
 app.use('/api/verifications', verificationRoutes);
+app.use("/api/complaints", complaintRoutes);
 
 // Start Server
 app.listen(PORT, () => {
