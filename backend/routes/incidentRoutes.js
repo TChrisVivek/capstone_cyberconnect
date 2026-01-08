@@ -2,16 +2,10 @@ const express = require("express");
 const router = express.Router();
 const incidentController = require("../controllers/incidentController");
 
-// Create a new incident (POST)
+// POST /api/incidents - Report a new incident
 router.post("/", incidentController.createIncident);
 
-// Get all incidents
+// GET /api/incidents - Get all incidents for the dashboard
 router.get("/", incidentController.getAllIncidents);
-
-// Get incident by ID
-router.get("/:id", incidentController.getIncidentById);
-
-// Update an incident by ID (PUT)
-router.put("/:id", incidentController.updateIncident);
 
 module.exports = router;
