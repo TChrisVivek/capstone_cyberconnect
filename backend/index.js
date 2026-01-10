@@ -9,6 +9,7 @@ const userRoutes = require('./routes/userRoutes');
 const complaintRoutes = require("./routes/complaintRoutes");
 const postRoutes = require("./routes/postRoutes");
 const actionLogRoutes = require('./routes/actionLogRoutes');
+const threatRoutes = require('./routes/threatRoutes');
 
 const app = express();
 const PORT = 5000; 
@@ -28,6 +29,7 @@ app.use('/api/users', userRoutes);
 app.use("/api/complaints", complaintRoutes);
 app.use("/api/posts", postRoutes);
 app.use('/api/logs', actionLogRoutes);
+app.use('/api/threats', threatRoutes);
 
 app.get('/', (req, res) => res.json({ message: 'Welcome to CyberConnect' }));
 
