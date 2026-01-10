@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Header } from '../components/layout/Header';
 import { Footer } from '../components/layout/Footer';
 import api from '../lib/api';
-import { Shield, AlertTriangle, AlertOctagon, Info, Activity, ExternalLink } from 'lucide-react';
+import { Shield, AlertTriangle, AlertOctagon, Zap, Globe, Lock, Server } from 'lucide-react';
 
 const Threats = () => {
   const [threats, setThreats] = useState([]);
@@ -23,6 +23,17 @@ const Threats = () => {
     }
   };
 
+  // Dynamic Icon Helper
+  const getDynamicIcon = (title) => {
+    const t = title.toLowerCase();
+    if (t.includes('phishing')) return <Globe className="w-6 h-6" />;
+    if (t.includes('ransomware') || t.includes('malware')) return <AlertOctagon className="w-6 h-6" />;
+    if (t.includes('ddos') || t.includes('network')) return <Server className="w-6 h-6" />;
+    if (t.includes('injection')) return <Zap className="w-6 h-6" />;
+    if (t.includes('password') || t.includes('credential')) return <Lock className="w-6 h-6" />;
+    return <AlertTriangle className="w-6 h-6" />;
+  };
+
   const getSeverityStyle = (severity) => {
     switch (severity.toLowerCase()) {
       case 'critical': return 'bg-red-50 text-red-700 border-red-200';
@@ -32,76 +43,54 @@ const Threats = () => {
     }
   };
 
-  const getIcon = (severity) => {
-    switch (severity.toLowerCase()) {
-      case 'critical': return <AlertOctagon className="w-5 h-5" />;
-      case 'high': return <AlertTriangle className="w-5 h-5" />;
-      default: return <Info className="w-5 h-5" />;
-    }
-  };
-
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-gray-50/30">
       <Header />
       
-      <main className="flex-1 pt-24 pb-12 px-4 bg-gray-50/50">
-        <div className="max-w-5xl mx-auto">
+      <main className="flex-1 pt-24 pb-16 px-4">
+        <div className="max-w-6xl mx-auto">
           
-          {/* Page Header */}
-          <div className="text-center mb-12">
-            <div className="inline-flex p-3 rounded-full bg-red-100 text-red-600 mb-4">
-              <Activity className="w-8 h-8" />
-            </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Threat Intelligence Feed</h1>
-            <p className="text-gray-500 max-w-xl mx-auto">Real-time alerts, vulnerabilities, and security advisories monitored by the CyberConnect network.</p>
+          <div className="text-center mb-16 space-y-4">
+             <div className="inline-flex items-center justify-center p-3 bg-blue-600/10 rounded-2xl mb-2">
+                <Shield className="w-8 h-8 text-[#1e90ff]" />
+             </div>
+             <h1 className="text-4xl font-bold text-gray-900 tracking-tight">
+                Common Cyber Threats
+             </h1>
+             <p className="text-lg text-gray-500 max-w-2xl mx-auto">
+                Stay informed about the most prevalent security risks in today's digital landscape.
+             </p>
           </div>
 
-          {/* Content */}
           {loading ? (
-             <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-                <div className="w-8 h-8 border-2 border-gray-200 border-t-[#1e90ff] rounded-full animate-spin mb-4"></div>
-                Loading intel...
+             <div className="flex justify-center py-20">
+                <div className="w-8 h-8 border-2 border-gray-200 border-t-[#1e90ff] rounded-full animate-spin"></div>
              </div>
-          ) : threats.length === 0 ? (
-            <div className="text-center py-16 bg-white rounded-2xl border border-gray-100 shadow-sm">
-              <Shield className="w-16 h-16 text-green-500 mx-auto mb-4 opacity-80" />
-              <h3 className="text-xl font-bold text-gray-800">System Secure</h3>
-              <p className="text-gray-500 mt-2">No active threats detected at this time.</p>
-            </div>
           ) : (
-            <div className="space-y-4">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {threats.map((threat) => (
-                <div key={threat._id} className="group bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-[#1e90ff]/30 transition-all duration-200">
-                  <div className="flex flex-col sm:flex-row gap-4 sm:items-start justify-between">
-                    
-                    {/* Left: Icon & Info */}
-                    <div className="flex gap-4">
-                      <div className={`shrink-0 w-12 h-12 rounded-lg flex items-center justify-center border ${getSeverityStyle(threat.severity)}`}>
-                         {getIcon(threat.severity)}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-3 mb-1">
-                          <h3 className="font-bold text-gray-900 text-lg group-hover:text-[#1e90ff] transition-colors">{threat.title}</h3>
-                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide border ${getSeverityStyle(threat.severity)}`}>
-                            {threat.severity}
-                          </span>
-                        </div>
-                        <p className="text-gray-600 text-sm leading-relaxed mb-3">{threat.description}</p>
-                        <div className="flex items-center gap-4 text-xs text-gray-400 font-medium">
-                          <span>Source: {threat.source}</span>
-                          <span>•</span>
-                          <span>{new Date(threat.date).toLocaleDateString()}</span>
-                        </div>
-                      </div>
+                <div key={threat._id} className="group bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                  
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="p-3 bg-gray-50 rounded-xl group-hover:bg-[#1e90ff]/10 group-hover:text-[#1e90ff] transition-colors">
+                       {getDynamicIcon(threat.title)}
                     </div>
+                    <span className={`text-[11px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wide border ${getSeverityStyle(threat.severity)}`}>
+                        {threat.severity}
+                    </span>
+                  </div>
 
-                    {/* Right: Action */}
-                    <div className="shrink-0 pt-1">
-                      <button className="text-gray-400 hover:text-[#1e90ff] transition-colors p-2 hover:bg-blue-50 rounded-full">
-                        <ExternalLink className="w-5 h-5" />
-                      </button>
-                    </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-[#1e90ff] transition-colors">
+                    {threat.title}
+                  </h3>
+                  <p className="text-gray-600 text-sm leading-relaxed mb-6">
+                    {threat.description}
+                  </p>
 
+                  <div className="pt-4 border-t border-gray-50 flex items-center justify-between text-xs text-gray-400 font-medium">
+                    <span className="flex items-center gap-1">
+                        Type: <span className="text-gray-600">{threat.source}</span>
+                    </span>
                   </div>
                 </div>
               ))}
@@ -109,7 +98,6 @@ const Threats = () => {
           )}
         </div>
       </main>
-
       <Footer />
     </div>
   );
