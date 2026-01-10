@@ -4,17 +4,14 @@ import { Header } from '../components/layout/Header';
 import { Footer } from '../components/layout/Footer';
 import { AuthForm } from '../components/auth/AuthForm';
 import { useToast } from '../hooks/use-toast';
-import api from '../lib/api'; // 1. Import the API helper
+import api from '../lib/api'; 
 
 const Register = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // 2. Make this function async
   const handleRegister = async (data) => {
-    console.log('Register attempt:', data);
-
-    // Password validation check (Client side)
+    // 1. Client-side Password Validation
     if (data.password !== data.confirmPassword) {
       toast({
         title: "Error",
@@ -25,16 +22,19 @@ const Register = () => {
     }
 
     try {
-      // 3. Send data to Backend
-      // We explicitly map the fields to ensure they match what the User Model expects
       const payload = {
-        name: data.name,       // Ensure your AuthForm collects 'name'
+        name: data.name,
         email: data.email,
         password: data.password,
-        role: "user"           // Default role (you can change this logic later)
+        role: "user" // Default role
       };
 
+      // 2. Send to Backend (POST /api/users)
       const response = await api.post('/users', payload);
+
+      // 3. ✅ CRITICAL: Save User & Token to LocalStorage
+      // This logs them in immediately so they can access the Dashboard
+      localStorage.setItem('user', JSON.stringify(response.data));
 
       // Success handling
       toast({
@@ -42,11 +42,10 @@ const Register = () => {
         description: "Welcome to Cyber Connect!",
       });
 
-      // Redirect to dashboard (or /login if you prefer them to sign in first)
-      navigate('/');
+      // 4. Redirect to Dashboard (Protected Route)
+      navigate('/dashboard');
 
     } catch (error) {
-      // 4. Error handling
       console.error("Registration error:", error);
       toast({
         title: "Registration Failed",
@@ -57,7 +56,6 @@ const Register = () => {
   };
 
   useEffect(() => {
-    // Scroll to top when component mounts
     window.scrollTo(0, 0);
   }, []);
 

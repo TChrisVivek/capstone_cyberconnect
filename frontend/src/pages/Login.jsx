@@ -18,6 +18,7 @@ const Login = () => {
         password: data.password
       });
 
+      // ✅ 1. Save Token to Local Storage
       localStorage.setItem('user', JSON.stringify(response.data));
 
       toast({
@@ -25,7 +26,8 @@ const Login = () => {
         description: "Welcome back to Cyber Connect!",
       });
 
-      navigate('/');
+      // ✅ 2. Redirect to Dashboard (Better UX than Home)
+      navigate('/dashboard');
 
     } catch (error) {
       toast({
@@ -41,6 +43,7 @@ const Login = () => {
       const { credential } = credentialResponse;
       const response = await api.post('/users/google-login', { token: credential });
       
+      // ✅ Save Google User Token too
       localStorage.setItem('user', JSON.stringify(response.data));
       
       toast({ 
@@ -48,7 +51,7 @@ const Login = () => {
         description: `Logged in as ${response.data.name}` 
       });
       
-      navigate('/');
+      navigate('/dashboard');
       
     } catch (error) {
       console.error("Google Auth Error:", error);

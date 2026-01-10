@@ -1,15 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom'; // ✅ Import useNavigate
+import { useNavigate } from 'react-router-dom';
 import { Header } from '../components/layout/Header';
 import { Footer } from '../components/layout/Footer';
 import { Button } from '../components/ui/Button';
-import { User, Shield, Save, Camera, LogOut } from 'lucide-react'; // ✅ Import LogOut
+import { User, Shield, Save, Camera, LogOut } from 'lucide-react';
 import api from '../lib/api';
 import { useToast } from '../hooks/use-toast';
 
 const Profile = () => {
   const { toast } = useToast();
-  const navigate = useNavigate(); // ✅ Initialize navigation
+  const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
@@ -23,19 +23,22 @@ const Profile = () => {
     profilePic: null
   });
 
-  // 1. Fetch User Data
+  // 1. Fetch User Data (Updated to use /me)
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
     if (storedUser) {
-      fetchUserProfile(storedUser._id || storedUser.id);
+      // ✅ No need to pass ID. The token handles it.
+      fetchUserProfile(); 
     } else {
-      navigate('/login'); // Redirect if not logged in
+      navigate('/login');
     }
-  }, []);
+  }, [navigate]);
 
-  const fetchUserProfile = async (id) => {
+  const fetchUserProfile = async () => {
     try {
-      const response = await api.get(`/users/${id}`);
+      // ✅ FIXED: Use the secure '/me' endpoint
+      const response = await api.get('/users/me');
+      
       setUser(response.data);
       setFormData({
         name: response.data.name,
@@ -45,15 +48,20 @@ const Profile = () => {
       });
     } catch (error) {
       console.error("Error fetching profile:", error);
+      toast({ 
+        title: "Error", 
+        description: "Failed to load profile data.", 
+        variant: "destructive" 
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  // 2. Handle Logout Function
+  // 2. Handle Logout
   const handleLogout = () => {
-    localStorage.removeItem('user'); // Clear data
-    navigate('/login'); // Redirect to login
+    localStorage.removeItem('user');
+    navigate('/login');
     toast({ title: "Logged Out", description: "See you next time!" });
   };
 
@@ -71,8 +79,9 @@ const Profile = () => {
     e.preventDefault();
     setUpdating(true);
     try {
-      const storedUser = JSON.parse(localStorage.getItem('user'));
-      const userId = storedUser._id || storedUser.id;
+      // We still use ID for the update route as defined in backend
+      // But we get it securely from the fetched user object
+      const userId = user._id; 
 
       const data = new FormData();
       data.append('name', formData.name);
@@ -82,8 +91,13 @@ const Profile = () => {
 
       const response = await api.put(`/users/${userId}`, data);
       
+      // Update State & Local Storage
       setUser(response.data);
-      localStorage.setItem('user', JSON.stringify(response.data));
+      
+      // Merge new data with existing token in localStorage so we don't lose the session
+      const currentUser = JSON.parse(localStorage.getItem('user'));
+      const updatedUserSession = { ...currentUser, ...response.data };
+      localStorage.setItem('user', JSON.stringify(updatedUserSession));
       
       toast({ title: "Profile Updated", description: "Your changes have been saved." });
       setFormData(prev => ({ ...prev, password: '' })); 
@@ -195,7 +209,7 @@ const Profile = () => {
                   {updating ? 'Saving...' : 'Save Changes'} <Save className="w-4 h-4 ml-2" />
                 </Button>
 
-                {/* ✅ NEW LOGOUT BUTTON */}
+                {/* Logout Button */}
                 <button 
                   type="button" 
                   onClick={handleLogout}

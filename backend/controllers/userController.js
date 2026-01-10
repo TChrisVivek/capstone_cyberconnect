@@ -1,172 +1,121 @@
 const User = require("../models/User");
-const { logAction } = require('./actionLogController'); // ✅ Import the logger
-const { OAuth2Client } = require('google-auth-library'); // ✅ Import Google Auth
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const axios = require('axios'); // ✅ Axios for Google Auth
+const { logAction } = require('./actionLogController'); // ✅ Logger
 
-// Initialize Google Client
-// ⚠️ REPLACE THIS STRING WITH YOUR ACTUAL GOOGLE CLIENT ID
-const client = new OAuth2Client("1023938203236-9irq03kqv1j3v43p86g5uscg9s3cqf40.apps.googleusercontent.com"); 
+// Helper: Generate JWT Token
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+};
 
-// 1. Create a new user (Register)
-exports.createUser = async (req, res) => {
+// 1. Register User
+exports.registerUser = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
 
-    console.log("📝 Registering user:", email);
-
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ error: "User already exists with this email" });
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: "Please add all fields" });
     }
-
-    // Create the new user
-    const newUser = new User({ name, email, password, role });
-    await newUser.save();
-
-    console.log("✅ User created successfully:", newUser._id);
-
-    // 📝 LOG ACTION: Register
-    await logAction(newUser._id, "User Registered", "Account created successfully");
-
-    res.status(201).json(newUser);
-
-  } catch (error) {
-    console.error("❌ Error creating user:", error);
-    res.status(500).json({ error: error.message }); 
-  }
-};
-
-// 2. Get all users (Admin or Debugging)
-exports.getAllUsers = async (req, res) => {
-  try {
-    const users = await User.find().select("-password"); // Hide passwords
-    res.json(users);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// 3. Get User Profile (Matches route /:id)
-exports.getUserProfile = async (req, res) => {
-  try {
-    // We use .select("-password") so we don't send the password to the frontend
-    const user = await User.findById(req.params.id).select("-password");
-    
-    if (!user) return res.status(404).json({ error: "User not found" });
-    
-    res.json(user);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// 4. Update User Profile (Matches route /:id)
-exports.updateUserProfile = async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id);
-
-    if (user) {
-      // Update fields if they are sent in the body
-      user.name = req.body.name || user.name;
-      user.email = req.body.email || user.email;
-      
-      // Update password only if a new one is provided
-      if (req.body.password) {
-        user.password = req.body.password; 
-      }
-
-      // ✅ Check if a file was uploaded
-      if (req.file) {
-        user.profilePic = `/uploads/${req.file.filename}`; // Save path
-      }
-
-      const updatedUser = await user.save();
-      
-      // 📝 LOG ACTION: Update
-      await logAction(updatedUser._id, "Profile Updated", "User updated their profile details");
-      
-      res.json({
-        _id: updatedUser._id,
-        name: updatedUser.name,
-        email: updatedUser.email,
-        role: updatedUser.role,
-        profilePic: updatedUser.profilePic // Return new image URL
-      });
-    } else {
-      res.status(404).json({ error: "User not found" });
-    }
-  } catch (error) {
-    console.error("Update Error:", error);
-    res.status(500).json({ error: "Update failed: " + error.message });
-  }
-};
-
-// 5. Login User
-exports.loginUser = async (req, res) => {
-  try {
-    const { email, password } = req.body;
 
     // Check if user exists
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ error: "Invalid email or password" });
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ error: "User already exists" });
     }
 
-    // Check if password matches
-    if (user.password !== password) {
-      return res.status(400).json({ error: "Invalid email or password" });
-    }
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-    // 📝 LOG ACTION: Login
-    await logAction(user._id, "User Logged In", "Login successful");
-
-    // Return user info (success)
-    res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      profilePic: user.profilePic, // ✅ Send the image path!
-      message: "Login successful"
+    // Create user
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role: 'user' // Default role
     });
 
+    if (user) {
+      // 📝 LOG ACTION
+      await logAction(user._id, "User Registered", "Account created successfully");
+
+      res.status(201).json({
+        _id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        token: generateToken(user.id),
+      });
+    } else {
+      res.status(400).json({ error: "Invalid user data" });
+    }
+  } catch (error) {
+    console.error("Register Error:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// 2. Login User
+exports.loginUser = async (req, res) => {
+  try {
+    console.log("LOGIN BODY 👉", req.body); // 🔥 ADD THIS
+
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email and password are required" });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (user && (await bcrypt.compare(password, user.password))) {
+      await logAction(user._id, "User Logged In", "Login successful");
+
+      res.json({
+        _id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        profilePic: user.profilePic,
+        token: generateToken(user.id),
+      });
+    } else {
+      res.status(400).json({ error: "Invalid email or password" });
+    }
   } catch (error) {
     console.error("Login Error:", error);
     res.status(500).json({ error: error.message });
   }
 };
 
-// 6. Google Login (NEW)
+// 3. Google Login (Secure via Axios)
 exports.googleLogin = async (req, res) => {
   try {
     const { token } = req.body;
     
-    // Verify token with Google
-    const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: "YOUR_GOOGLE_CLIENT_ID_HERE", // ⚠️ REPLACE THIS
-    });
+    // ✅ Verify token with Google using Axios
+    const googleResponse = await axios.get(`https://oauth2.googleapis.com/tokeninfo?id_token=${token}`);
     
-    const { name, email, picture } = ticket.getPayload();
+    const { email, name, sub, picture } = googleResponse.data;
 
     // Check if user exists
     let user = await User.findOne({ email });
 
     if (!user) {
-      // Create new user (Generate a random password since they use Google)
+      // Create new user if they don't exist
       const randomPassword = Math.random().toString(36).slice(-8);
-      
-      user = new User({
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(randomPassword, salt);
+
+      user = await User.create({
         name,
         email,
-        password: randomPassword, 
-        role: 'user', // Default role
+        password: hashedPassword,
+        googleId: sub,
         profilePic: picture
       });
-      await user.save();
-      
+
       // 📝 LOG ACTION
       await logAction(user._id, "User Registered (Google)", "Account created via Google");
     } else {
@@ -174,18 +123,75 @@ exports.googleLogin = async (req, res) => {
       await logAction(user._id, "User Logged In (Google)", "Login successful via Google");
     }
 
-    // Return user info
     res.json({
-      _id: user._id,
+      _id: user.id,
       name: user.name,
       email: user.email,
       role: user.role,
       profilePic: user.profilePic,
-      message: "Google Login successful"
+      token: generateToken(user.id),
     });
 
   } catch (error) {
-    console.error("Google Login Error:", error);
-    res.status(500).json({ error: "Google authentication failed" });
+    console.error("Google Auth Error:", error.message);
+    res.status(400).json({ error: "Google authentication failed" });
+  }
+};
+
+// 4. Get Current User Profile (Protected Route)
+exports.getMe = async (req, res) => {
+  try {
+    // req.user is set by the auth middleware
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) {
+        return res.status(404).json({ error: "User not found" });
+    }
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// 5. Update User Profile
+exports.updateUserProfile = async (req, res) => {
+  try {
+    // Use req.user.id from token if available, or params if you prefer
+    // Using params here to match your old code structure
+    const user = await User.findById(req.params.id);
+
+    if (user) {
+      user.name = req.body.name || user.name;
+      user.email = req.body.email || user.email;
+
+      // ✅ If password is provided, HASH IT before saving
+      if (req.body.password) {
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(req.body.password, salt);
+      }
+
+      // ✅ Handle File Upload
+      if (req.file) {
+        user.profilePic = `/uploads/${req.file.filename}`;
+      }
+
+      const updatedUser = await user.save();
+
+      // 📝 LOG ACTION
+      await logAction(updatedUser._id, "Profile Updated", "User updated profile details");
+
+      res.json({
+        _id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        role: updatedUser.role,
+        profilePic: updatedUser.profilePic,
+        token: generateToken(updatedUser._id) // Return new token in case info changed
+      });
+    } else {
+      res.status(404).json({ error: "User not found" });
+    }
+  } catch (error) {
+    console.error("Update Error:", error);
+    res.status(500).json({ error: "Update failed: " + error.message });
   }
 };
