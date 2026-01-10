@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true, // This prevents duplicate emails
+    unique: true, // Prevents duplicate emails
   },
   password: {
     type: String,
@@ -16,8 +16,12 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ["user", "admin", "expert"],
+    enum: ["user", "admin", "expert"], // Restricts role to these 3 values
     default: "user",
+  },
+  profilePic: {
+    type: String,
+    default: "", // ✅ This stores the path to your uploaded image
   },
   createdAt: {
     type: Date,

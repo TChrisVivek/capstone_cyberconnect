@@ -43,7 +43,7 @@ const Register = () => {
       });
 
       // Redirect to dashboard (or /login if you prefer them to sign in first)
-      navigate('/dashboard');
+      navigate('/');
 
     } catch (error) {
       // 4. Error handling

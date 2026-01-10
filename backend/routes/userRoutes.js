@@ -1,20 +1,29 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const userController = require("../controllers/userController");
+const userController = require('../controllers/userController');
+const multer = require('multer');
+const path = require('path');
 
-// Login User (POST) - This must be imported from the controller!
-router.post("/login", userController.loginUser);
+// --- MULTER CONFIGURATION ---
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // Save to backend/uploads
+  },
+  filename: (req, file, cb) => {
+    // Unique name: timestamp + extension
+    cb(null, Date.now() + path.extname(file.originalname)); 
+  }
+});
+const upload = multer({ storage: storage });
 
-// Create a new user (POST)
-router.post("/", userController.createUser);
+// --- ROUTES ---
+router.post('/register', userController.createUser);
+router.post('/login', userController.loginUser);
+router.get('/', userController.getAllUsers);
+router.get('/:id', userController.getUserProfile);
+router.post('/google-login', userController.googleLogin);
 
-// Get all users (GET)
-router.get("/", userController.getAllUsers);
-
-// Get user by ID (GET)
-router.get("/:id", userController.getUserById);
-
-// Update a user by ID (PUT)
-router.put("/:id", userController.updateUser);
+// ✅ UPDATE ROUTE: Uses 'upload.single' middleware
+router.put('/:id', upload.single('profilePic'), userController.updateUserProfile);
 
 module.exports = router;
