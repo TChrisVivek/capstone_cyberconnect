@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Header } from '../components/layout/Header';
 import { 
-  Send, User, Hash, Search, Bell, HelpCircle, Plus, Code, AlertTriangle, Shield
+  Send, User, Hash, Search, Bell, Plus, Code, AlertTriangle, Shield
 } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
 import api from '../lib/api';
@@ -56,10 +56,9 @@ const Community = () => {
 
     setSubmitting(true);
     try {
-      const userId = currentUser._id || currentUser.id;
-      
-      // Just send the post content directly (No tags added)
-      const response = await api.post(`/posts/${userId}`, { content: newPost });
+      // ✅ FIXED: Removed userId from URL. 
+      // The backend gets the user ID from the Token automatically.
+      const response = await api.post('/posts', { content: newPost });
       
       setPosts([...posts, response.data]); // Add new post to bottom
       setNewPost(""); 
@@ -120,7 +119,7 @@ const Community = () => {
 
           <div className="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-thin text-sm">
              <div className="mt-2 px-2 pb-2 text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center justify-between">
-                <span>Active Channels</span>
+               <span>Active Channels</span>
              </div>
             <div className="flex items-center gap-2 px-2 py-1.5 bg-[#1e90ff]/10 text-[#1e90ff] rounded-md cursor-pointer font-medium">
               <Hash className="w-4 h-4" /> <span>general-ops</span>
@@ -254,12 +253,11 @@ const Community = () => {
             <div ref={chatEndRef} />
           </div>
 
-          {/* FIXED INPUT AREA (Tag Selector Removed) */}
+          {/* Input Area */}
           <div className="p-4 bg-white border-t border-gray-200">
             {currentUser ? (
               <form onSubmit={handlePostSubmit} className="relative bg-gray-100 rounded-xl flex items-center p-2 border border-gray-200 focus-within:border-[#1e90ff] focus-within:ring-2 focus-within:ring-[#1e90ff]/20 transition-all">
                 
-                {/* Only the Plus Button remains */}
                 <div className="flex items-center pl-2 pr-1">
                     <button type="button" className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded transition-colors w-fit">
                       <Plus className="w-5 h-5" />

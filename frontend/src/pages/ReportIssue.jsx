@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // To redirect after success
+import { useNavigate } from 'react-router-dom';
 import { Header } from '../components/layout/Header';
 import { Footer } from '../components/layout/Footer';
 import { Button } from '../components/ui/Button';
-import { AlertTriangle, Send, CheckCircle } from 'lucide-react';
+import { AlertTriangle, Send } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
 import api from '../lib/api';
 
@@ -13,9 +13,10 @@ const ReportIssue = () => {
   const [loading, setLoading] = useState(false);
   
   // Form State
+  // ✅ Changed 'type' to 'category' to match your Backend Controller
   const [formData, setFormData] = useState({
     title: '',
-    type: 'Phishing', // Default value
+    category: 'Phishing', 
     description: ''
   });
 
@@ -25,18 +26,16 @@ const ReportIssue = () => {
     if (!user) {
       navigate('/login'); // Redirect if not logged in
     }
-  }, []);
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const user = JSON.parse(localStorage.getItem('user'));
-      const userId = user._id || user.id;
-
-      // Send to Backend
-      await api.post(`/complaints/${userId}`, formData);
+      // ✅ FIXED: Removed userId from URL. 
+      // The API now knows who you are from the Token in api.js
+      await api.post('/complaints', formData);
 
       // Success Message
       toast({ 
@@ -44,15 +43,17 @@ const ReportIssue = () => {
         description: "Our experts will review your issue shortly." 
       });
 
-      // Clear Form or Redirect
-      setFormData({ title: '', type: 'Phishing', description: '' });
-      navigate('/dashboard'); // Go to dashboard to see the log!
+      // Clear Form
+      setFormData({ title: '', category: 'Phishing', description: '' });
+      
+      // Redirect to Dashboard to see the new log
+      navigate('/dashboard'); 
 
     } catch (error) {
       console.error("Submission error:", error);
       toast({ 
         title: "Submission Failed", 
-        description: "Please try again later.", 
+        description: error.response?.data?.error || "Please try again later.", 
         variant: "destructive" 
       });
     } finally {
@@ -95,12 +96,12 @@ const ReportIssue = () => {
                 />
               </div>
 
-              {/* Type Dropdown */}
+              {/* Category Dropdown (Renamed from Type) */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
                 <select
-                  value={formData.type}
-                  onChange={(e) => setFormData({...formData, type: e.target.value})}
+                  value={formData.category}
+                  onChange={(e) => setFormData({...formData, category: e.target.value})}
                   className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-[#1e90ff] bg-white"
                 >
                   <option value="Phishing">Phishing Attempt</option>

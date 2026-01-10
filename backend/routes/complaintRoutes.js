@@ -1,11 +1,33 @@
 const express = require('express');
 const router = express.Router();
-const complaintController = require('../controllers/complaintController');
+const { protect } = require('../middleware/authMiddleware'); // ✅ Import Security Middleware
 
-// POST /api/complaints/:userId -> Create new report
-router.post('/:userId', complaintController.createComplaint);
+// Import Controller Functions
+const { 
+  createComplaint, 
+  getUserComplaints, 
+  getAllComplaints, 
+  updateStatus 
+} = require('../controllers/complaintController');
 
-// GET /api/complaints/:userId -> Get user's history
-router.get('/:userId', complaintController.getUserComplaints);
+// --- ROUTES ---
+
+// 1. Create new report (Protected)
+// POST /api/complaints
+router.post('/', protect, createComplaint);
+
+// 2. Get user's history (Protected)
+// GET /api/complaints/my
+router.get('/my', protect, getUserComplaints); 
+
+// --- ADMIN ROUTES ---
+
+// 3. Get ALL reports (Admin Dashboard)
+// GET /api/complaints/all
+router.get('/all', protect, getAllComplaints);
+
+// 4. Update status (e.g., Mark as Resolved)
+// PUT /api/complaints/:id/status
+router.put('/:id/status', protect, updateStatus);
 
 module.exports = router;

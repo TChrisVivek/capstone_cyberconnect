@@ -14,16 +14,18 @@ const Dashboard = () => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
     if (storedUser) {
       setUser(storedUser);
-      fetchLogs(storedUser._id || storedUser.id);
+      fetchLogs(); // No need to pass ID anymore
     } else {
       setLoading(false);
     }
   }, []);
 
   // 2. Fetch Logs from Backend
-  const fetchLogs = async (userId) => {
+  const fetchLogs = async () => {
     try {
-      const response = await api.get(`/logs/${userId}`);
+      // ✅ FIXED: Removed userId from URL. 
+      // The API now uses the Token to identify the user.
+      const response = await api.get('/logs');
       setLogs(response.data);
     } catch (error) {
       console.error("Failed to fetch logs:", error);
@@ -65,7 +67,7 @@ const Dashboard = () => {
                   <Activity className="w-5 h-5 text-[#1e90ff]" /> Recent Activity
                 </h2>
                 <span className="text-xs font-medium bg-blue-50 text-blue-600 px-2 py-1 rounded-full">
-                  Last 10 Actions
+                  Last 20 Actions
                 </span>
               </div>
 
