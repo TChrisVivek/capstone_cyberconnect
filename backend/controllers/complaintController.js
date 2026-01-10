@@ -1,34 +1,38 @@
-const Complaint = require("../models/Complaint");
+const Complaint = require('../models/Complaint');
+const { logAction } = require('./actionLogController'); // ✅ Import Logger
 
-// Create a new Complaint
+// 1. Create a new Complaint
 exports.createComplaint = async (req, res) => {
   try {
-    console.log("📥 [BACKEND] Received Complaint:", req.body);
-
-    const { title, description, category, contactEmail, user_id } = req.body;
-
-    // 1. Validation
-    if (!title || !description || !category) {
-      return res.status(400).json({ error: "Please provide a title, description, and category." });
-    }
-
-    // 2. Create Complaint Object
+    const { title, type, description } = req.body;
+    
+    // Create the complaint linked to the logged-in user
     const newComplaint = new Complaint({
+      user: req.params.userId, // We get ID from the URL
       title,
-      description,
-      category,
-      contactEmail,
-      user_id: user_id || null, // If user is logged in, save ID. If not, null.
+      type,
+      description
     });
 
-    // 3. Save to DB
-    const savedComplaint = await newComplaint.save();
-    
-    console.log("✅ [BACKEND] Complaint Saved:", savedComplaint._id);
-    res.status(201).json(savedComplaint);
+    await newComplaint.save();
+
+    // 📝 LOG ACTION: Report Issue
+    await logAction(req.params.userId, "Reported Issue", `Submitted a ${type} report: "${title}"`);
+
+    res.status(201).json(newComplaint);
 
   } catch (error) {
-    console.error("🔥 [BACKEND CRASH] Complaint Error:", error.message);
-    res.status(500).json({ error: "Server Error: " + error.message });
+    console.error("Error creating complaint:", error);
+    res.status(500).json({ error: "Failed to submit report" });
+  }
+};
+
+// 2. Get Complaints for a specific user (History)
+exports.getUserComplaints = async (req, res) => {
+  try {
+    const complaints = await Complaint.find({ user: req.params.userId }).sort({ createdAt: -1 });
+    res.json(complaints);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };

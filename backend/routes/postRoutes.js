@@ -1,14 +1,11 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const postController = require("../controllers/postController");
+const postController = require('../controllers/postController');
 
-// GET /api/posts - Read all posts
-router.get("/", postController.getAllPosts);
+// POST /api/posts/:userId -> Create Post
+router.post('/:userId', postController.createPost);
 
-// POST /api/posts - Create a new post
-router.post("/", postController.createPost);
-
-// POST /api/posts/:postId/comments - Add a comment (Reply)
-router.post("/:postId/comments", postController.addComment); 
+// GET /api/posts -> Get All Posts
+router.get('/', postController.getAllPosts);
 
 module.exports = router;
