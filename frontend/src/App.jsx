@@ -9,6 +9,7 @@ import Community from './pages/Community';
 import About from './pages/About';
 import NotFound from './pages/NotFound';
 import ForgotPassword from './pages/ForgotPassword';
+import Threats from './pages/Threats';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/threats" element={<Threats />} />
         
         {/* Protected Pages */}
         <Route path="/dashboard" element={<Dashboard />} />
