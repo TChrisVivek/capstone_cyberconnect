@@ -35,7 +35,7 @@ const Community = () => {
 
   const fetchPosts = async () => {
     try {
-      const response = await api.get('/posts');
+      const response = await api.get('/api/posts');
       // Reverse array to show newest at the bottom (Chat style)
       setPosts(response.data.reverse()); 
     } catch (error) {
@@ -58,7 +58,7 @@ const Community = () => {
     try {
       // ✅ FIXED: Removed userId from URL. 
       // The backend gets the user ID from the Token automatically.
-      const response = await api.post('/posts', { content: newPost });
+      const response = await api.post('/api/posts', { content: newPost });
       
       setPosts([...posts, response.data]); // Add new post to bottom
       setNewPost(""); 

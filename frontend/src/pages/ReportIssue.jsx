@@ -35,7 +35,7 @@ const ReportIssue = () => {
     try {
       // ✅ FIXED: Removed userId from URL. 
       // The API now knows who you are from the Token in api.js
-      await api.post('/complaints', formData);
+      await api.post('/api/complaints', formData);
 
       // Success Message
       toast({ 

@@ -30,7 +30,7 @@ const Register = () => {
       };
 
       // 2. Send to Backend (POST /api/users)
-      const response = await api.post('/users', payload);
+      const response = await api.post('/api/users', payload);
 
       // 3. ✅ CRITICAL: Save User & Token to LocalStorage
       // This logs them in immediately so they can access the Dashboard
