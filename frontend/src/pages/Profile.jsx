@@ -37,7 +37,7 @@ const Profile = () => {
   const fetchUserProfile = async () => {
     try {
       // ✅ FIXED: Use the secure '/me' endpoint
-      const response = await api.get('/users/me');
+      const response = await api.get('/api/users/me');
       
       setUser(response.data);
       setFormData({
@@ -116,7 +116,7 @@ const Profile = () => {
 
   const getProfileImage = () => {
     if (preview) return preview;
-    if (user?.profilePic) return `http://localhost:5000${user.profilePic}`;
+    if (user?.profilePic) return `/api/${user.profilePic}`;
     return null;
   };
 

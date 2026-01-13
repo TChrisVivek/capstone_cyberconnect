@@ -1,45 +1,64 @@
 const Threat = require('../models/Threat');
-const axios = require('axios'); // ✅ Import Axios
 
-// Get all threats (Fetches LIVE data from CIRCL.LU if DB is empty or old)
+// ✅ The 6 Hardcoded "Classic" Threats
+const DEFAULT_THREATS = [
+  {
+    title: "Phishing Attacks",
+    description: "Deceptive attempts to steal sensitive information like passwords and credit card numbers by masquerading as a trustworthy entity in emails or messages.",
+    severity: "High",
+    source: "Email / Web",
+    date: new Date()
+  },
+  {
+    title: "Ransomware",
+    description: "Malicious software that encrypts a user's files and demands payment (ransom) in exchange for the decryption key.",
+    severity: "Critical",
+    source: "Malware",
+    date: new Date()
+  },
+  {
+    title: "DDoS Attacks",
+    description: "Distributed Denial of Service: An attempt to disrupt normal traffic of a targeted server, service, or network by overwhelming the target with a flood of Internet traffic.",
+    severity: "High",
+    source: "Network",
+    date: new Date()
+  },
+  {
+    title: "SQL Injection (SQLi)",
+    description: "A code injection technique where malicious SQL statements are inserted into an entry field for execution, often allowing attackers to view data they are not normally able to retrieve.",
+    severity: "Critical",
+    source: "Web Application",
+    date: new Date()
+  },
+  {
+    title: "Man-in-the-Middle (MitM)",
+    description: "An attack where the attacker secretly relays and possibly alters the communications between two parties who believe they are directly communicating with each other.",
+    severity: "Medium",
+    source: "Network / WiFi",
+    date: new Date()
+  },
+  {
+    title: "Zero-Day Exploits",
+    description: "Attacks that target a software vulnerability which is unknown to the software vendor or antivirus vendors, meaning no patch exists yet.",
+    severity: "Critical",
+    source: "Software Vulnerability",
+    date: new Date()
+  }
+];
+
+// Get all threats
 exports.getThreats = async (req, res) => {
   try {
-    // 1. Check if we have recent data (e.g., in the last 24 hours)
-    const latestThreat = await Threat.findOne().sort({ date: -1 });
-    const isStale = !latestThreat || (new Date() - new Date(latestThreat.date)) > 24 * 60 * 60 * 1000;
+    // 1. Check if the database is empty
+    const count = await Threat.countDocuments();
 
-    // 2. If data is missing or old, Fetch LIVE from External API
-    if (isStale) {
-        console.log("🔄 Fetching Live Threat Intelligence...");
-        
-        try {
-            // Fetch from CIRCL.LU (Free Open Source CVE Feed)
-            const response = await axios.get('https://cve.circl.lu/api/last');
-            
-            // The API returns a huge list; we take the top 10 most recent ones
-            const liveData = response.data.slice(0, 10).map(item => ({
-                // Map API "id" (e.g., CVE-2024-1234) to our "title"
-                title: item.id, 
-                // Map API "summary" to "description", limited to 200 chars
-                description: item.summary.length > 200 ? item.summary.substring(0, 200) + "..." : item.summary,
-                // Default fields since this API doesn't provide severity/source
-                severity: "High", 
-                source: "Official CVE Feed",
-                date: new Date(item.Published)
-            }));
-
-            // Clear the old database entries and insert the new live data
-            await Threat.deleteMany({});
-            await Threat.insertMany(liveData);
-            console.log("✅ Database updated with Live Intel.");
-
-        } catch (apiError) {
-            console.error("⚠️ External API failed, serving existing backup data:", apiError.message);
-            // If the API fails, the code will skip the update and just return what is currently in the DB.
-        }
+    // 2. If empty, Seed it with our Default Data
+    if (count === 0) {
+      console.log("⚠️ Database empty. Seeding with default hardcoded threats...");
+      await Threat.insertMany(DEFAULT_THREATS);
     }
 
-    // 3. Return the threats from our DB to the Frontend
+    // 3. Fetch from DB
     const threats = await Threat.find().sort({ date: -1 });
     res.json(threats);
 
@@ -48,7 +67,7 @@ exports.getThreats = async (req, res) => {
   }
 };
 
-// Create a new threat (Admin usage only)
+// Create a new threat (Admin usage)
 exports.createThreat = async (req, res) => {
   try {
     const newThreat = new Threat(req.body);

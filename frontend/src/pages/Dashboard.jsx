@@ -25,7 +25,7 @@ const Dashboard = () => {
     try {
       // ✅ FIXED: Removed userId from URL. 
       // The API now uses the Token to identify the user.
-      const response = await api.get('/logs');
+      const response = await api.get('/api/logs');
       setLogs(response.data);
     } catch (error) {
       console.error("Failed to fetch logs:", error);
