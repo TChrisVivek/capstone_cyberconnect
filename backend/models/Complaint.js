@@ -10,7 +10,7 @@ const complaintSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  type: {
+  category: {
     type: String, // e.g., "Phishing", "Identity Theft", "Cyberbullying"
     required: true,
     enum: ['Phishing', 'Identity Theft', 'Cyberbullying', 'Hacking', 'Financial Fraud', 'Other']
