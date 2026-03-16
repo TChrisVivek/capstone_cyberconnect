@@ -1,7 +1,8 @@
 const User = require("../models/User");
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const axios = require('axios'); // ✅ Axios for Google Auth
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const { logAction } = require('./actionLogController'); // ✅ Logger
 
 // Helper: Generate JWT Token
@@ -89,15 +90,23 @@ exports.loginUser = async (req, res) => {
   }
 };
 
-// 3. Google Login (Secure via Axios)
+// 3. Google Login (Secure via google-auth-library)
 exports.googleLogin = async (req, res) => {
   try {
     const { token } = req.body;
-    
-    // ✅ Verify token with Google using Axios
-    const googleResponse = await axios.get(`https://oauth2.googleapis.com/tokeninfo?id_token=${token}`);
-    
-    const { email, name, sub, picture } = googleResponse.data;
+
+    if (!token) {
+      return res.status(400).json({ error: "Google token is required" });
+    }
+
+    // ✅ Verify token with Google using google-auth-library
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const { email, name, sub, picture } = payload;
 
     // Check if user exists
     let user = await User.findOne({ email });
@@ -134,7 +143,7 @@ exports.googleLogin = async (req, res) => {
 
   } catch (error) {
     console.error("Google Auth Error:", error.message);
-    res.status(400).json({ error: "Google authentication failed" });
+    res.status(401).json({ error: "Google authentication failed: " + error.message });
   }
 };
 
@@ -144,7 +153,7 @@ exports.getMe = async (req, res) => {
     // req.user is set by the auth middleware
     const user = await User.findById(req.user.id).select('-password');
     if (!user) {
-        return res.status(404).json({ error: "User not found" });
+      return res.status(404).json({ error: "User not found" });
     }
     res.json(user);
   } catch (error) {
