@@ -21,21 +21,27 @@ const Community = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const chatEndRef = useRef(null);
 
-  // 1. Load User & Fetch Posts on Mount
+  const [activeChannel, setActiveChannel] = useState('general-ops');
+
+  const [imageFile, setImageFile] = useState(null);
+  const fileInputRef = useRef(null);
+
+  // 1. Load User & Fetch Posts on Mount and Channel Change
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
     setCurrentUser(storedUser);
-    fetchPosts();
-  }, []);
+    fetchPosts(activeChannel);
+  }, [activeChannel]);
 
   // 2. Auto-scroll to bottom
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [posts]);
 
-  const fetchPosts = async () => {
+  const fetchPosts = async (channel) => {
+    setLoading(true);
     try {
-      const response = await api.get('/api/posts');
+      const response = await api.get(`/api/posts?channel=${channel}`);
       // Reverse array to show newest at the bottom (Chat style)
       setPosts(response.data.reverse()); 
     } catch (error) {
@@ -47,7 +53,7 @@ const Community = () => {
 
   const handlePostSubmit = async (e) => {
     e.preventDefault();
-    if (!newPost.trim()) return;
+    if (!newPost.trim() && !imageFile) return;
 
     if (!currentUser) {
       toast({ title: "Login Required", description: "You must be logged in to post.", variant: "destructive" });
@@ -56,12 +62,23 @@ const Community = () => {
 
     setSubmitting(true);
     try {
-      // ✅ FIXED: Removed userId from URL. 
-      // The backend gets the user ID from the Token automatically.
-      const response = await api.post('/api/posts', { content: newPost });
+      const formData = new FormData();
+      formData.append('content', newPost);
+      formData.append('channel', activeChannel);
+      if (imageFile) {
+        formData.append('image', imageFile);
+      }
+
+      // Important: api is axios. Using FormData automatically sets multipart/form-data headers
+      const response = await api.post('/api/posts', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
       
       setPosts([...posts, response.data]); // Add new post to bottom
       setNewPost(""); 
+      setImageFile(null);
+
+
       
     } catch (error) {
       console.error("Post error:", error);
@@ -121,14 +138,26 @@ const Community = () => {
              <div className="mt-2 px-2 pb-2 text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center justify-between">
                <span>Active Channels</span>
              </div>
-            <div className="flex items-center gap-2 px-2 py-1.5 bg-[#1e90ff]/10 text-[#1e90ff] rounded-md cursor-pointer font-medium">
+             
+            <div 
+              onClick={() => setActiveChannel('general-ops')}
+              className={`flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer font-medium transition-colors ${activeChannel === 'general-ops' ? 'bg-[#1e90ff]/10 text-[#1e90ff]' : 'text-gray-600 hover:bg-gray-100'}`}
+            >
               <Hash className="w-4 h-4" /> <span>general-ops</span>
             </div>
-            <div className="flex items-center gap-2 px-2 py-1.5 text-gray-600 rounded-md hover:bg-gray-100 cursor-pointer transition-colors">
-              <AlertTriangle className="w-4 h-4 text-red-500" /> <span>threat-intel-feed</span>
+            
+            <div 
+              onClick={() => setActiveChannel('threat-intel-feed')}
+              className={`flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer font-medium transition-colors ${activeChannel === 'threat-intel-feed' ? 'bg-red-50 text-red-600' : 'text-gray-600 hover:bg-gray-100'}`}
+            >
+              <AlertTriangle className={`w-4 h-4 ${activeChannel === 'threat-intel-feed' ? 'text-red-600' : 'text-red-500'}`} /> <span>threat-intel-feed</span>
             </div>
-             <div className="flex items-center gap-2 px-2 py-1.5 text-gray-600 rounded-md hover:bg-gray-100 cursor-pointer transition-colors">
-              <Code className="w-4 h-4 text-purple-500" /> <span>malware-analysis</span>
+            
+             <div 
+              onClick={() => setActiveChannel('malware-analysis')}
+              className={`flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer font-medium transition-colors ${activeChannel === 'malware-analysis' ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-100'}`}
+            >
+              <Code className={`w-4 h-4 ${activeChannel === 'malware-analysis' ? 'text-purple-600' : 'text-purple-500'}`} /> <span>malware-analysis</span>
             </div>
           </div>
 
@@ -156,15 +185,19 @@ const Community = () => {
         </aside>
 
         {/* --- MAIN CHAT AREA --- */}
-        <main className="flex-1 flex flex-col min-w-0 bg-gray-50">
+        <main className="flex-1 flex flex-col min-w-0 bg-gray-50 relative">
           
           {/* Header */}
-          <div className="h-14 border-b border-gray-200 flex items-center justify-between px-4 shadow-sm bg-white z-10">
+          <div className="h-14 border-b border-gray-200 flex items-center justify-between px-4 shadow-sm bg-white z-10 shrink-0">
             <div className="flex items-center gap-2">
               <Hash className="w-6 h-6 text-gray-400" />
               <div>
-                <h2 className="font-bold text-gray-800 leading-tight">general-ops</h2>
-                <p className="text-xs text-gray-500 hidden sm:block">Main operations hub and general security discussions.</p>
+                <h2 className="font-bold text-gray-800 leading-tight">{activeChannel}</h2>
+                <p className="text-xs text-gray-500 hidden sm:block">
+                  {activeChannel === 'general-ops' && 'Main operations hub and general security discussions.'}
+                  {activeChannel === 'threat-intel-feed' && 'Real-time threat reports and intelligence sharing.'}
+                  {activeChannel === 'malware-analysis' && 'Deep dives into reverse engineering and malware behaviors.'}
+                </p>
               </div>
             </div>
             
@@ -176,6 +209,13 @@ const Community = () => {
             </div>
           </div>
 
+          {/* Mobile Channel Selector */}
+          <div className="md:hidden flex items-center gap-2 px-4 py-3 bg-white border-b border-gray-200 overflow-x-auto scrollbar-hide shrink-0 shadow-sm z-10">
+             <button onClick={() => setActiveChannel('general-ops')} className={`whitespace-nowrap px-4 py-1.5 rounded-full text-[13px] font-bold transition-colors shadow-sm ${activeChannel === 'general-ops' ? 'bg-[#1e90ff] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}># general-ops</button>
+             <button onClick={() => setActiveChannel('threat-intel-feed')} className={`whitespace-nowrap px-4 py-1.5 rounded-full text-[13px] font-bold transition-colors shadow-sm ${activeChannel === 'threat-intel-feed' ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}># threat-intel-feed</button>
+             <button onClick={() => setActiveChannel('malware-analysis')} className={`whitespace-nowrap px-4 py-1.5 rounded-full text-[13px] font-bold transition-colors shadow-sm ${activeChannel === 'malware-analysis' ? 'bg-purple-50 text-purple-600 border border-purple-200' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}># malware-analysis</button>
+          </div>
+
           {/* Messages Feed */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-gray-300 bg-white/50">
               {loading ? (
@@ -183,10 +223,17 @@ const Community = () => {
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#1e90ff]"></div> Loading intel...
                 </div>
               ) : posts.length === 0 ? (
-                 <div className="text-center mt-10 opacity-70">
-                  <Shield className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-gray-700">Secure Channel Established.</h3>
-                  <p className="text-gray-500">Begin sharing intelligence.</p>
+                 <div className="text-center mt-20 opacity-90 max-w-lg mx-auto bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                  <div className="bg-blue-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm border border-blue-100">
+                    <Shield className="w-10 h-10 text-[#1e90ff]" />
+                  </div>
+                  <h3 className="text-2xl font-extrabold text-slate-800 mb-3 tracking-tight">Welcome to the Community!</h3>
+                  <p className="text-slate-500 font-medium leading-relaxed">
+                    This is a live chat space where you can speak to people, discuss cybersecurity, share threat intelligence, and help each other stay safe online.
+                  </p>
+                  <p className="text-blue-500 font-semibold text-sm mt-6">
+                    Be the first to break the ice — send a message below! 👇
+                  </p>
                 </div>
               ) : (
                 posts.map((post, index) => {
@@ -238,12 +285,19 @@ const Community = () => {
                         
                         {/* Markdown Content */}
                         <div className={`text-[15px] text-gray-800 leading-relaxed markdown-container ${isSequence ? 'ml-0' : ''}`}>
-                          <ReactMarkdown 
-                            remarkPlugins={[remarkGfm]}
-                            components={renderers}
-                          >
-                            {post.content}
-                          </ReactMarkdown>
+                          {post.content && (
+                            <ReactMarkdown 
+                              remarkPlugins={[remarkGfm]}
+                              components={renderers}
+                            >
+                              {post.content}
+                            </ReactMarkdown>
+                          )}
+                          {post.image && (
+                            <div className="mt-3">
+                              <img src={`http://localhost:5000${post.image}`} alt="Attachment" className="max-w-full md:max-w-md rounded-xl shadow-sm border border-gray-200" />
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -256,38 +310,68 @@ const Community = () => {
           {/* Input Area */}
           <div className="p-4 bg-white border-t border-gray-200">
             {currentUser ? (
-              <form onSubmit={handlePostSubmit} className="relative bg-gray-100 rounded-xl flex items-center p-2 border border-gray-200 focus-within:border-[#1e90ff] focus-within:ring-2 focus-within:ring-[#1e90ff]/20 transition-all">
-                
-                <div className="flex items-center pl-2 pr-1">
-                    <button type="button" className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded transition-colors w-fit">
-                      <Plus className="w-5 h-5" />
-                    </button>
-                </div>
-
-                <textarea
-                  rows={1}
-                  className="flex-1 bg-transparent border-none focus:ring-0 text-gray-800 placeholder-gray-400 resize-none py-2 px-3 scrollbar-thin"
-                  placeholder={`Message #general-ops`}
-                  value={newPost}
-                  onChange={(e) => setNewPost(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      handlePostSubmit(e);
-                    }
-                  }}
-                />
-
-                <div className="pr-1">
+              <div className="flex flex-col gap-2">
+                {/* Image Preview */}
+                {imageFile && (
+                  <div className="relative inline-block w-24 h-24 mb-2">
+                    <img src={URL.createObjectURL(imageFile)} alt="Preview" className="w-full h-full object-cover rounded-lg border border-gray-200" />
                     <button 
-                      type="submit" 
-                      disabled={submitting || !newPost.trim()} 
-                      className={`p-2 rounded-lg transition-all ${newPost.trim() ? 'bg-[#1e90ff] text-white hover:bg-blue-600 hover:scale-105' : 'bg-gray-200 text-gray-400'}`}
+                      onClick={() => setImageFile(null)}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-colors"
                     >
-                      <Send className="w-4 h-4 transform rotate-45 relative left-[-1px]" />
+                      <Plus className="w-3 h-3 transform rotate-45" />
                     </button>
-                </div>
-              </form>
+                  </div>
+                )}
+                
+                <form onSubmit={handlePostSubmit} className="relative bg-gray-100 rounded-xl flex items-center p-2 border border-gray-200 focus-within:border-[#1e90ff] focus-within:ring-2 focus-within:ring-[#1e90ff]/20 transition-all">
+                  
+                  <div className="flex items-center pl-2 pr-1">
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        ref={fileInputRef}
+                        className="hidden" 
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files[0]) {
+                            setImageFile(e.target.files[0]);
+                          }
+                        }}
+                      />
+                      <button 
+                        type="button" 
+                        onClick={() => fileInputRef.current?.click()}
+                        className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded transition-colors w-fit"
+                      >
+                        <Plus className="w-5 h-5" />
+                      </button>
+                  </div>
+
+                  <textarea
+                    rows={1}
+                    className="flex-1 bg-transparent border-none focus:ring-0 text-gray-800 placeholder-gray-400 resize-none py-2 px-3 scrollbar-thin"
+                    placeholder={`Message #${activeChannel}`}
+                    value={newPost}
+                    onChange={(e) => setNewPost(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handlePostSubmit(e);
+                      }
+                    }}
+                  />
+
+                  <div className="pr-1">
+                      <button 
+                        type="submit" 
+                        disabled={submitting || (!newPost.trim() && !imageFile)} 
+                        className={`p-2 rounded-lg transition-all ${(newPost.trim() || imageFile) ? 'bg-[#1e90ff] text-white hover:bg-blue-600 hover:scale-105' : 'bg-gray-200 text-gray-400'}`}
+                      >
+                        <Send className="w-4 h-4 transform rotate-45 relative left-[-1px]" />
+                      </button>
+                  </div>
+                </form>
+              </div>
             ) : (
               <div className="text-center text-gray-500 text-sm py-3 bg-gray-50 rounded-xl border border-dashed border-gray-300">
                 Access restricted. <a href="/login" className="text-[#1e90ff] font-medium hover:underline">Authenticate</a> to contribute intelligence.

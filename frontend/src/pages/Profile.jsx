@@ -89,7 +89,7 @@ const Profile = () => {
       if (formData.password) data.append('password', formData.password);
       if (formData.profilePic) data.append('profilePic', formData.profilePic);
 
-      const response = await api.put(`/users/${userId}`, data);
+      const response = await api.put(`/api/users/${userId}`, data);
       
       // Update State & Local Storage
       setUser(response.data);
@@ -116,7 +116,12 @@ const Profile = () => {
 
   const getProfileImage = () => {
     if (preview) return preview;
-    if (user?.profilePic) return `/api/${user.profilePic}`;
+    if (user?.profilePic) {
+      // If the profilePic is already a full URL (e.g., from Google), use it directly
+      if (user.profilePic.startsWith('http')) return user.profilePic;
+      // Otherwise, prefix with backend URL for uploaded files
+      return `http://localhost:5000${user.profilePic}`;
+    }
     return null;
   };
 

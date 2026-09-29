@@ -49,21 +49,70 @@ const DEFAULT_THREATS = [
 // Get all threats
 exports.getThreats = async (req, res) => {
   try {
-    // 1. Check if the database is empty
-    const count = await Threat.countDocuments();
+    // Fetch live threats from The Hacker News RSS feed via rss2json API
+    const rssUrl = 'https://feeds.feedburner.com/TheHackersNews';
+    const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+    
+    const response = await fetch(apiUrl);
+    
+    if (response.ok) {
+      const data = await response.json();
+      
+      if (data.items && data.items.length > 0) {
+        // Map the RSS feed items to match our Threat schema format
+        const liveThreats = data.items.map(item => {
+          // Determine a pseudo-severity based on keywords in title/description
+          const text = (item.title + ' ' + item.description).toLowerCase();
+          let severity = 'Medium';
+          let source = 'Cyber News';
+          
+          if (text.includes('critical') || text.includes('0-day') || text.includes('zero-day') || text.includes('ransomware')) {
+            severity = 'Critical';
+          } else if (text.includes('breach') || text.includes('vulnerability') || text.includes('attack') || text.includes('hack')) {
+            severity = 'High';
+          }
+          
+          if (text.includes('malware') || text.includes('ransomware')) source = 'Malware';
+          else if (text.includes('phishing') || text.includes('spam')) source = 'Phishing';
+          else if (text.includes('flaw') || text.includes('vulnerability') || text.includes('patch')) source = 'Vulnerability';
+          else if (text.includes('arrest') || text.includes('police')) source = 'Law Enforcement';
 
-    // 2. If empty, Seed it with our Default Data
+          return {
+            _id: item.guid || item.link,
+            title: item.title,
+            description: item.description.replace(/<[^>]+>/g, '').substring(0, 200) + '...',
+            severity: severity,
+            source: source,
+            date: new Date(item.pubDate),
+            link: item.link,
+            image: item.enclosure?.link || item.thumbnail || null
+          };
+        });
+        
+        return res.json(liveThreats);
+      }
+    }
+    
+    // Fallback: If API fails, check DB or use defaults
+    const count = await Threat.countDocuments();
     if (count === 0) {
-      console.log("⚠️ Database empty. Seeding with default hardcoded threats...");
+      console.log("⚠️ Database empty and API failed. Seeding with default hardcoded threats...");
       await Threat.insertMany(DEFAULT_THREATS);
     }
-
-    // 3. Fetch from DB
     const threats = await Threat.find().sort({ date: -1 });
     res.json(threats);
 
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Live threat fetch error:", error.message);
+    
+    // Fallback to DB or Defaults
+    try {
+      const threats = await Threat.find().sort({ date: -1 }).limit(10);
+      res.json(threats && threats.length > 0 ? threats : DEFAULT_THREATS);
+    } catch (dbError) {
+      console.warn("MongoDB is unreachable. Falling back to default threats.");
+      res.json(DEFAULT_THREATS);
+    }
   }
 };
 

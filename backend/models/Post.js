@@ -10,6 +10,13 @@ const postSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  channel: {
+    type: String,
+    default: 'general-ops'
+  },
+  image: {
+    type: String
+  },
   createdAt: {
     type: Date,
     default: Date.now

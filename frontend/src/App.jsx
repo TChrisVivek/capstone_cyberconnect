@@ -10,10 +10,12 @@ import About from './pages/About';
 import NotFound from './pages/NotFound';
 import ForgotPassword from './pages/ForgotPassword';
 import Threats from './pages/Threats';
+import { Toaster } from './components/ui/toaster';
 
 function App() {
   return (
     <Router>
+      <Toaster />
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/login" element={<Login />} />
