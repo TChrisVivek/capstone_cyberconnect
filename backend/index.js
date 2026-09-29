@@ -18,9 +18,12 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-  origin: process.env.CLIENT_URL, // ✅ FROM ENV
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // ❌ fixed POSTS typo
-  allowedHeaders: ['Content-Type', 'Authorization'], // ❌ fixed spelling
+  origin: function (origin, callback) {
+    // Allow any origin for this capstone project so it works on localhost and Vercel
+    callback(null, true);
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
 
