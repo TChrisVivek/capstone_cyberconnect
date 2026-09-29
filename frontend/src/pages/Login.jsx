@@ -93,23 +93,25 @@ const Login = () => {
             />
             
             {/* BYPASS BUTTON FOR LOCAL TESTING */}
-            <button
-              onClick={() => {
-                const mockUser = {
-                  _id: "test-admin-123",
-                  name: "Test Admin",
-                  email: "admin@cyberconnect.local",
-                  role: "admin",
-                  token: "mock-jwt-token-for-testing"
-                };
-                localStorage.setItem('user', JSON.stringify(mockUser));
-                toast({ title: "Bypass Successful", description: "Logged in as Test Admin" });
-                navigate('/dashboard');
-              }}
-              className="text-xs text-gray-400 hover:text-[#1e90ff] underline underline-offset-2 transition-colors"
-            >
-              Bypass Login (Test Mode)
-            </button>
+            {import.meta.env.DEV && (
+              <button
+                onClick={() => {
+                  const mockUser = {
+                    _id: "test-admin-123",
+                    name: "Test Admin",
+                    email: "admin@cyberconnect.local",
+                    role: "admin",
+                    token: "mock-jwt-token-for-testing"
+                  };
+                  localStorage.setItem('user', JSON.stringify(mockUser));
+                  toast({ title: "Bypass Successful", description: "Logged in as Test Admin" });
+                  navigate('/dashboard');
+                }}
+                className="text-xs text-gray-400 hover:text-[#1e90ff] underline underline-offset-2 transition-colors"
+              >
+                Bypass Login (Test Mode)
+              </button>
+            )}
           </div>
 
         </div>
