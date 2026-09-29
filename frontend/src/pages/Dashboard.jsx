@@ -113,7 +113,7 @@ const Dashboard = () => {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Member Since</span>
-                  <span className="font-medium">2024</span>
+                  <span className="font-medium">{user?.createdAt ? new Date(user.createdAt).getFullYear() : new Date().getFullYear()}</span>
                 </div>
               </div>
             </div>

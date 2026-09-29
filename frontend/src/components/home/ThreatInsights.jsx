@@ -68,16 +68,15 @@ const threats = [
 export function ThreatInsights() {
   const [hoveredThreat, setHoveredThreat] = useState(null);
 
-
   return (
-    <section className="py-20 bg-white">
+    <section className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-12">
-          <div className="max-w-xl">
-            <h2 className="text-3xl font-bold tracking-tight mb-3 bg-clip-text text-transparent bg-gradient-to-r from-[#1e90ff] to-blue-600">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-16">
+          <div className="max-w-2xl">
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900 mb-4">
               Latest Threat Insights
             </h2>
-            <p className="text-[#717d8a]">
+            <p className="text-lg text-gray-600 leading-relaxed">
               Stay informed about the most prevalent cyber threats and learn how to protect yourself against them.
             </p>
           </div>
@@ -109,56 +108,45 @@ export function ThreatInsights() {
 const ThreatCard = ({ threat, hoveredThreat, setHoveredThreat }) => {
   const isHovered = hoveredThreat === threat.id;
 
-  const cardClasses = `rounded-xl p-6 transition-all duration-300 hover-scale ${threat.border} ${threat.bg} ${isHovered ? "shadow-lg" : "shadow-sm"} backdrop-blur-sm relative overflow-hidden`;
-  const iconClasses = `w-12 h-12 rounded-full flex items-center justify-center mb-5 ${threat.bg}`;
-  const lucideIconClasses = `w-6 h-6 ${threat.color}`;
-  const trendClasses = `text-xs flex items-center gap-0.5 ${threat.trendUp ? "text-green-500" : "text-red-500"}`;
-  const trendingUpClasses = `w-3 h-3 ${threat.trendUp ? "" : "rotate-180 transform"}`;
-  const progressBarBg = threat.color.replace('text-', 'bg-');
-  const buttonClasses = `w-full group ${threat.color} hover:bg-white/80 dark:hover:bg-black/20 transition-all`;
-
   return (
     <div
-      className={cardClasses}
+      className="group bg-white rounded-[32px] p-7 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 flex flex-col h-full cursor-pointer border border-transparent hover:border-gray-100"
       onMouseEnter={() => setHoveredThreat(threat.id)}
       onMouseLeave={() => setHoveredThreat(null)}
     >
-
-      <div className="absolute inset-0 opacity-5 pattern-grid -z-10" />
-
-      <div className={iconClasses}>
-        <threat.icon className={lucideIconClasses} />
-      </div>
-
-      <h3 className="text-xl font-semibold mb-3 flex items-center">{threat.title}</h3>
-      <p className="text-[#717d8a] mb-5">{threat.description}</p>
-
-      <div className="mt-4 space-y-3">
-        <div className="flex justify-between items-center text-sm">
-          <span className="font-medium">Prevalence</span>
-          <div className="flex items-center gap-2">
-            <span className={`font-semibold ${threat.color}`}>{threat.percent}%</span>
-            <span className={trendClasses}>
-              <TrendingUp
-                className={trendingUpClasses}
-              />
-              {threat.trend}
-            </span>
-          </div>
+      {/* Top Row: Icon and Trend */}
+      <div className="flex justify-between items-start mb-6">
+        <div className={`w-14 h-14 flex items-center justify-center bg-white border border-gray-100 rounded-[20px] shadow-sm group-hover:scale-105 group-hover:border-blue-100 transition-all duration-300 ${threat.color}`}>
+          <threat.icon className="w-6 h-6" />
         </div>
-
+        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border shadow-sm ${threat.trendUp ? "bg-red-50 text-red-600 border-red-100" : "bg-emerald-50 text-emerald-600 border-emerald-100"}`}>
+          <TrendingUp className={`w-3.5 h-3.5 ${threat.trendUp ? "" : "rotate-180 transform"}`} />
+          {threat.trend.split(' ')[0]}
+        </div>
       </div>
 
-      <div className="mt-6">
-        <Link to={`/threats/${threat.id}`}>
-          <Button
-            variant="ghost"
-            size="sm"
-            className={buttonClasses}
-          >
-            Learn how to protect yourself
-            <ExternalLink className="w-3.5 h-3.5 ml-1 transition-transform group-hover:translate-x-0.5" />
-          </Button>
+      {/* Content */}
+      <h3 className="text-[22px] font-bold text-slate-900 mb-3 leading-snug group-hover:text-blue-600 transition-colors">
+        {threat.title}
+      </h3>
+      <p className="text-slate-500 text-[15px] leading-relaxed mb-6 flex-grow">
+        {threat.description}
+      </p>
+
+      {/* Divider */}
+      <div className="w-full h-[1px] bg-gray-100 mb-5"></div>
+
+      {/* Footer Metrics */}
+      <div className="flex items-center justify-between mb-5">
+        <span className="text-[12px] font-bold text-slate-400 uppercase tracking-widest">Prevalence</span>
+        <span className={`text-[16px] font-extrabold ${threat.color}`}>{threat.percent}%</span>
+      </div>
+
+      {/* Action Link */}
+      <div className="mt-auto">
+        <Link to="/threats" className="inline-flex items-center text-[14px] font-bold text-slate-600 hover:text-blue-600 transition-colors">
+          Learn how to protect yourself
+          <ExternalLink className="w-3.5 h-3.5 ml-1.5 group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-transform" />
         </Link>
       </div>
     </div>

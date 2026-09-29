@@ -64,19 +64,21 @@ export function Header() {
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 transition-opacity duration-300 hover:opacity-80">
-          <Shield className="w-8 h-8 text-[#1e90ff]" />
-          <span className="text-xl font-semibold tracking-tight">Cyber Connect</span>
+        <Link to="/" className="flex items-center gap-2.5 transition-opacity duration-300 hover:opacity-80 group">
+          <div className="bg-gradient-to-br from-[#1e90ff] to-cyan-400 p-1.5 rounded-lg shadow-lg shadow-[#1e90ff]/30 group-hover:shadow-[#1e90ff]/50 transition-shadow">
+            <Shield className="w-6 h-6 text-white" />
+          </div>
+          <span className="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-700">Cyber Connect</span>
         </Link>
 
         {/* --- DESKTOP NAVIGATION --- */}
-        <nav className="hidden md:flex items-center gap-6">
+        <nav className="hidden md:flex items-center gap-7">
           {navItems.map((item) => (
             <Link
               key={item.name}
               to={item.path}
-              className={`text-sm font-medium link-underline transition-colors ${
-                location.pathname === item.path ? "text-[#1e90ff]" : "text-[#383e47]/80 hover:text-[#383e47]"
+              className={`text-sm font-semibold transition-all duration-300 hover:-translate-y-0.5 ${
+                location.pathname === item.path ? "text-[#1e90ff]" : "text-gray-600 hover:text-[#1e90ff]"
               }`}
             >
               {item.name}
@@ -86,8 +88,8 @@ export function Header() {
           {user && (
             <Link 
               to="/dashboard" 
-              className={`text-sm font-medium transition-colors ${
-                location.pathname === '/dashboard' ? "text-[#1e90ff]" : "text-[#383e47]/80 hover:text-[#383e47]"
+              className={`text-sm font-semibold transition-all duration-300 hover:-translate-y-0.5 ${
+                location.pathname === '/dashboard' ? "text-[#1e90ff]" : "text-gray-600 hover:text-[#1e90ff]"
               }`}
             >
               Dashboard
@@ -96,8 +98,8 @@ export function Header() {
 
           <Link
             to="/about"
-            className={`text-sm font-medium link-underline transition-colors ${
-              location.pathname === '/about' ? "text-[#1e90ff]" : "text-[#383e47]/80 hover:text-[#383e47]"
+            className={`text-sm font-semibold transition-all duration-300 hover:-translate-y-0.5 ${
+              location.pathname === '/about' ? "text-[#1e90ff]" : "text-gray-600 hover:text-[#1e90ff]"
             }`}
           >
             About
@@ -127,10 +129,10 @@ export function Header() {
           ) : (
             <>
               <Link to="/login">
-                <Button variant="ghost" size="sm" className="gap-1.5"><Lock className="w-4 h-4" /> Login</Button>
+                <Button variant="ghost" size="sm" className="gap-1.5 text-gray-700 font-semibold hover:text-[#1e90ff] hover:bg-[#1e90ff]/10"><Lock className="w-4 h-4" /> Login</Button>
               </Link>
               <Link to="/register">
-                <Button variant="default" size="sm" className="gap-1.5 bg-[#1e90ff] text-white"><User className="w-4 h-4" /> Register</Button>
+                <Button variant="default" size="sm" className="gap-1.5 bg-gradient-to-r from-[#1e90ff] to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white shadow-lg shadow-[#1e90ff]/30 border-0"><User className="w-4 h-4" /> Register</Button>
               </Link>
             </>
           )}

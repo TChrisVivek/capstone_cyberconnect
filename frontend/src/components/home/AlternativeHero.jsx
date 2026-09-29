@@ -4,9 +4,9 @@ import { ArrowRight, Shield, ArrowUpRight } from 'lucide-react';
 import { Button } from '../ui/Button';
 
 const stats = [
-  { label: 'Active Members', value: '10,000+' },
-  { label: 'Threats Identified', value: '5,200+' },
-  { label: 'Success Rate', value: '98.3%' },
+  { label: 'Cyber Attacks Daily (Global)', value: '2,200+' },
+  { label: 'Avg. Data Breach Cost', value: '$4.45M' },
+  { label: 'Attacks Start via Phishing', value: '90%+' },
 ];
 
 export function AlternativeHero() {
@@ -24,21 +24,24 @@ export function AlternativeHero() {
   const cards = [
     {
       title: "Detect Threats",
-      description: "Stay ahead of cyber criminals with real-time threat intelligence and alerts",
-      color: "from-blue-500/20 to-blue-400/20  border-blue-500/30",
-      textColor: "text-blue-400",
+      description: "Stay ahead of cyber criminals with real-time threat intelligence and proactive alerts.",
+      color: "from-blue-500/20 to-cyan-400/20 border-blue-400/30",
+      textColor: "text-blue-500",
+      accent: "text-[#1e90ff]",
     },
     {
       title: "Prevent Attacks",
-      description: "Learn proven strategies to protect yourself from common cyber attacks",
-      color: "from-green-500/20 to-green-400/20 border-green-500/30",
-      textColor: "text-green-400 ",
+      description: "Learn proven strategies to protect your personal and organizational data from common cyber attacks.",
+      color: "from-emerald-500/20 to-teal-400/20 border-emerald-400/30",
+      textColor: "text-emerald-500",
+      accent: "text-emerald-500",
     },
     {
       title: "Recover Quickly",
-      description: "Get support and guidance if you've been compromised or attacked",
-      color: "from-amber-500/20 to-amber-400/20 border-amber-500/30",
-      textColor: "text-amber-400 ",
+      description: "Get immediate support and actionable guidance if you've been compromised or targeted by an attack.",
+      color: "from-amber-500/20 to-orange-400/20 border-amber-400/30",
+      textColor: "text-amber-500",
+      accent: "text-amber-500",
     },
   ];
 
@@ -59,9 +62,9 @@ export function AlternativeHero() {
               Cybersecurity for Everyone
             </div>
 
-            <h1 className="text-4xl md:text-6xl lg:text-6xl font-bold tracking-tight leading-tight animate-fade-in" style={{ animationDelay: '100ms' }}>
+            <h1 className="text-4xl md:text-6xl lg:text-6xl font-extrabold tracking-tight leading-tight animate-fade-in" style={{ animationDelay: '100ms' }}>
               Your journey to
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#1e90ff] to-blue-600 block">digital safety</span>
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#1e90ff] to-cyan-400 block pb-2">digital safety</span>
               starts here
             </h1>
 
@@ -86,11 +89,11 @@ export function AlternativeHero() {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-4 pt-6 animate-fade-in" style={{ animationDelay: '400ms' }}>
+            <div className="flex flex-wrap gap-8 sm:gap-12 pt-8 border-t border-gray-100 animate-fade-in" style={{ animationDelay: '400ms' }}>
               {stats.map((stat, index) => (
-                <div key={index} className="text-center">
-                  <div className="text-2xl md:text-3xl font-bold text-[#383e47]">{stat.value}</div>
-                  <div className="text-sm text-[#717d8a]">{stat.label}</div>
+                <div key={index} className="text-left">
+                  <div className="text-2xl md:text-3xl font-extrabold text-gray-900">{stat.value}</div>
+                  <div className="text-sm font-medium text-gray-500 mt-1">{stat.label}</div>
                 </div>
               ))}
             </div>
@@ -102,22 +105,16 @@ export function AlternativeHero() {
     {cards.map((card, index) => (
       <div
         key={index}
-        className={`absolute w-[300px] p-6 rounded-2xl border backdrop-blur-xl transition-all duration-500 ease-in-out bg-gradient-to-br ${card.color} ${
+        className={`absolute w-[340px] p-8 rounded-[2rem] border-[1.5px] backdrop-blur-2xl transition-all duration-700 ease-out bg-gradient-to-br ${card.color} ${
           index === activeCard
-            ? "opacity-100 z-30 scale-100"
+            ? "opacity-100 z-30 scale-100 translate-y-0 shadow-[0_0_40px_rgba(30,144,255,0.15)]"
             : index === (activeCard + 1) % cards.length
-            ? "opacity-70 z-20 scale-90 translate-x-20 translate-y-10 blur-sm " // Added blur-sm
-            : "opacity-40 z-10 scale-80 -translate-x-20 translate-y-20 blur-sm  " // Added blur-md
+            ? "opacity-60 z-20 scale-[0.92] translate-x-12 translate-y-8 blur-[1px]"
+            : "opacity-30 z-10 scale-[0.85] -translate-x-12 translate-y-16 blur-[3px]"
         }`}
       >
-        <h3 className={`text-xl font-bold mb-3 ${card.textColor}`}>{card.title}</h3>
-        <p className="text-black">{card.description}</p>
-        <div className="mt-6 flex justify-end">
-          <Button variant="ghost" size="sm" className={`${card.textColor} gap-1`}>
-            Learn more
-            <ArrowRight className="w-4 h-4" />
-          </Button>
-        </div>
+        <h3 className={`text-2xl font-extrabold mb-3 ${card.textColor}`}>{card.title}</h3>
+        <p className="text-gray-700 leading-relaxed text-sm font-medium">{card.description}</p>
       </div>
               ))}
             </div>

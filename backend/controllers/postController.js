@@ -4,24 +4,26 @@ const { logAction } = require('./actionLogController'); // ✅ Import Logger
 // 1. Create a new Post
 exports.createPost = async (req, res) => {
   try {
-    const { content } = req.body;
+    const { content, channel } = req.body;
+    const imagePath = req.file ? `/uploads/${req.file.filename}` : undefined;
 
     // Validation
-    if (!content) {
-      return res.status(400).json({ error: "Content is required" });
+    if (!content && !imagePath) {
+      return res.status(400).json({ error: "Content or image is required" });
     }
 
     // Create Post
-    // Note: We use req.user.id (from the token) instead of req.params.userId for security.
     const newPost = new Post({
       user: req.user.id, 
-      content
+      content: content || '',
+      channel: channel || 'general-ops',
+      image: imagePath
     });
 
     await newPost.save();
 
     // 📝 LOG ACTION
-    await logAction(req.user.id, "Community Post", "Shared a new post in the community");
+    await logAction(req.user.id, "Community Post", `Shared a new post in ${channel || 'general-ops'}`);
 
     // Return the post with user details immediately so the UI updates nicely
     const populatedPost = await Post.findById(newPost._id).populate('user', 'name profilePic role');
@@ -37,7 +39,13 @@ exports.createPost = async (req, res) => {
 // 2. Get All Posts (Sorted by Newest)
 exports.getAllPosts = async (req, res) => {
   try {
-    const posts = await Post.find()
+    // If a channel is provided in query, filter by it. Default to general-ops if undefined in DB.
+    const query = req.query.channel ? { $or: [{ channel: req.query.channel }] } : {};
+    if (req.query.channel === 'general-ops') {
+      query.$or.push({ channel: { $exists: false } }); // Legacy posts
+    }
+    
+    const posts = await Post.find(query)
       .populate('user', 'name profilePic role') 
       .sort({ createdAt: -1 }); // Newest first
 
