@@ -183,7 +183,7 @@ const Community = () => {
               </div>
               <div className="overflow-hidden leading-tight">
                 <div className="text-sm font-bold text-gray-800 truncate">{currentUser.name}</div>
-                <div className="text-xs text-gray-500 truncate capitalize">
+                <div className={`truncate ${currentUser.role === 'admin' ? 'text-[10px] font-bold text-red-600 uppercase tracking-wide' : 'text-xs text-gray-500 capitalize'}`}>
                   {currentUser.role || 'Member'}
                 </div>
               </div>

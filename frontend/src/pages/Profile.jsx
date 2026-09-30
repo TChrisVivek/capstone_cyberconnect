@@ -40,6 +40,11 @@ const Profile = () => {
       const response = await api.get('/api/users/me');
       
       setUser(response.data);
+      
+      // ✅ Sync the latest data (like role changes) back to localStorage so the rest of the app updates
+      const currentUserSession = JSON.parse(localStorage.getItem('user')) || {};
+      localStorage.setItem('user', JSON.stringify({ ...currentUserSession, ...response.data }));
+
       setFormData({
         name: response.data.name,
         email: response.data.email,
