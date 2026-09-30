@@ -64,7 +64,7 @@ const Register = () => {
       <Header />
 
       <main className="flex-1 flex items-center justify-center p-4 bg-white pt-24 pb-16">
-        <div className="w-full max-w-md p-8 bg-white rounded-2xl shadow-lg animate-fade-in ">
+        <div className="w-full max-w-md p-8 bg-white rounded-xl shadow-lg animate-fade-in ">
           <AuthForm type="register" onSubmit={handleRegister} />
         </div>
       </main>

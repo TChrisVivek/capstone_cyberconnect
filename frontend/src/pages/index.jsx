@@ -82,32 +82,32 @@ const Index = () => {
               <div className="md:w-1/2 grid grid-cols-1 sm:grid-cols-2 gap-6 relative">
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[#1e90ff] rounded-full blur-[80px] opacity-20 -z-10" />
                 
-                <div className="bg-white/70 backdrop-blur-xl p-8 rounded-3xl border border-white/40 shadow-xl shadow-blue-900/5 hover:-translate-y-2 transition-all duration-500">
-                  <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-500/30">
+                <div className="bg-white/70 backdrop-blur-xl p-8 rounded-xl border border-white/40 shadow-xl shadow-blue-900/5 hover:-translate-y-2 transition-all duration-500">
+                  <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shrink-0 flex items-center justify-center mb-6 shadow-lg shadow-blue-500/30">
                     <Shield className="w-7 h-7 text-white" />
                   </div>
                   <h3 className="text-xl font-extrabold text-gray-900 mb-3">Threat Intelligence</h3>
                   <p className="text-gray-600 leading-relaxed text-sm font-medium">Stay informed about the latest cybersecurity threats and vulnerabilities.</p>
                 </div>
 
-                <div className="bg-white/70 backdrop-blur-xl p-8 rounded-3xl border border-white/40 shadow-xl shadow-emerald-900/5 hover:-translate-y-2 transition-all duration-500 sm:mt-12">
-                  <div className="w-14 h-14 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-emerald-500/30">
+                <div className="bg-white/70 backdrop-blur-xl p-8 rounded-xl border border-white/40 shadow-xl shadow-emerald-900/5 hover:-translate-y-2 transition-all duration-500 sm:mt-12">
+                  <div className="w-14 h-14 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl shrink-0 flex items-center justify-center mb-6 shadow-lg shadow-emerald-500/30">
                     <Lock className="w-7 h-7 text-white" />
                   </div>
                   <h3 className="text-xl font-extrabold text-gray-900 mb-3">Privacy Protection</h3>
                   <p className="text-gray-600 leading-relaxed text-sm font-medium">Learn best practices for safeguarding your personal information online.</p>
                 </div>
 
-                <div className="bg-white/70 backdrop-blur-xl p-8 rounded-3xl border border-white/40 shadow-xl shadow-purple-900/5 hover:-translate-y-2 transition-all duration-500">
-                  <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-purple-500/30">
+                <div className="bg-white/70 backdrop-blur-xl p-8 rounded-xl border border-white/40 shadow-xl shadow-purple-900/5 hover:-translate-y-2 transition-all duration-500">
+                  <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shrink-0 flex items-center justify-center mb-6 shadow-lg shadow-purple-500/30">
                     <BarChart3 className="w-7 h-7 text-white" />
                   </div>
                   <h3 className="text-xl font-extrabold text-gray-900 mb-3">Risk Assessment</h3>
                   <p className="text-gray-600 leading-relaxed text-sm font-medium">Evaluate your digital security posture and identify areas for improvement.</p>
                 </div>
 
-                <div className="bg-white/70 backdrop-blur-xl p-8 rounded-3xl border border-white/40 shadow-xl shadow-amber-900/5 hover:-translate-y-2 transition-all duration-500 sm:mt-12">
-                  <div className="w-14 h-14 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-amber-500/30">
+                <div className="bg-white/70 backdrop-blur-xl p-8 rounded-xl border border-white/40 shadow-xl shadow-amber-900/5 hover:-translate-y-2 transition-all duration-500 sm:mt-12">
+                  <div className="w-14 h-14 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl shrink-0 flex items-center justify-center mb-6 shadow-lg shadow-amber-500/30">
                     <CheckCircle2 className="w-7 h-7 text-white" />
                   </div>
                   <h3 className="text-xl font-extrabold text-gray-900 mb-3">Recovery Support</h3>

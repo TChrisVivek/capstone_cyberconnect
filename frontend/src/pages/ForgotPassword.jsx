@@ -38,12 +38,12 @@ const ForgotPassword = () => {
       <Header />
 
       <main className="flex-1 flex items-center justify-center p-4 bg-gray-50 dark:bg-gray-950 pt-24 pb-16">
-        <div className="w-full max-w-md p-8 bg-white dark:bg-gray-900 rounded-2xl shadow-lg animate-fade-in border border-gray-200 dark:border-gray-800">
+        <div className="w-full max-w-md p-8 bg-white dark:bg-gray-900 rounded-xl shadow-lg animate-fade-in border border-gray-200 dark:border-gray-800">
           
           {/* --- SUCCESS STATE (Check Inbox) --- */}
           {submitted ? (
             <div className="text-center py-4">
-              <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-6 mx-auto">
+              <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-xl shrink-0 flex items-center justify-center mb-6 mx-auto">
                 <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-500" />
               </div>
               
@@ -74,7 +74,7 @@ const ForgotPassword = () => {
             
             /* --- FORM STATE --- */
             <div>
-              <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mb-6 mx-auto">
+              <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-lg shrink-0 flex items-center justify-center mb-6 mx-auto">
                 <Mail className="w-6 h-6 text-[#1e90ff]" />
               </div>
 

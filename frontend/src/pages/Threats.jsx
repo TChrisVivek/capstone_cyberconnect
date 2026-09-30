@@ -3,10 +3,12 @@ import { Header } from '../components/layout/Header';
 import { Footer } from '../components/layout/Footer';
 import api from '../lib/api';
 import { Shield, AlertTriangle, AlertOctagon, Zap, Globe, Lock, Server } from 'lucide-react';
+import { useToast } from '../hooks/use-toast';
 
 const Threats = () => {
   const [threats, setThreats] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     fetchThreats();
@@ -18,6 +20,7 @@ const Threats = () => {
       setThreats(response.data);
     } catch (error) {
       console.error("Failed to fetch threats", error);
+      toast({ title: "Error", description: "Failed to load live threats.", variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -74,7 +77,7 @@ const Threats = () => {
                 const wrapperProps = threat.link ? { href: threat.link, target: '_blank', rel: 'noopener noreferrer' } : {};
                 
                 return (
-                <CardWrapper {...wrapperProps} key={threat._id} className="group bg-white rounded-[32px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 flex flex-col h-full cursor-pointer border border-transparent hover:border-gray-100 overflow-hidden">
+                <CardWrapper {...wrapperProps} key={threat._id} className="group bg-white rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 flex flex-col h-full cursor-pointer border border-transparent hover:border-gray-100 overflow-hidden">
                   
                   {/* Cover Image */}
                   {threat.image ? (
@@ -91,7 +94,7 @@ const Threats = () => {
                   <div className="p-7 flex flex-col flex-grow">
                     {/* Top Row: Icon & Severity */}
                     <div className="flex justify-between items-start mb-6">
-                      <div className="w-14 h-14 flex items-center justify-center bg-white border border-gray-100 rounded-[20px] shadow-sm text-slate-700 group-hover:scale-105 group-hover:text-blue-600 group-hover:border-blue-100 transition-all duration-300">
+                      <div className="w-14 h-14 shrink-0 flex items-center justify-center bg-white border border-gray-100 rounded-lg shadow-sm text-slate-700 group-hover:scale-105 group-hover:text-blue-600 group-hover:border-blue-100 transition-all duration-300">
                          {getDynamicIcon(threat.title)}
                       </div>
                       <span className={`text-[11px] px-3 py-1.5 rounded-full font-bold uppercase tracking-wide border ${getSeverityStyle(threat.severity)}`}>
@@ -116,7 +119,7 @@ const Threats = () => {
                           <span className="w-2 h-2 rounded-full bg-gray-300 group-hover:bg-blue-400 transition-colors"></span>
                           <span className="text-[14px] font-bold text-slate-600 line-clamp-1">{threat.source || "General"}</span>
                       </div>
-                      <span className="bg-gray-50 text-slate-500 text-[13px] font-bold px-3 py-1.5 rounded-xl border border-gray-100 whitespace-nowrap ml-2">
+                      <span className="bg-gray-50 text-slate-500 text-[13px] font-bold px-3 py-1.5 rounded-lg border border-gray-100 whitespace-nowrap ml-2">
                         {new Date(threat.date).toLocaleDateString()}
                       </span>
                     </div>
