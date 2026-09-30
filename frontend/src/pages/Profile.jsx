@@ -120,7 +120,7 @@ const Profile = () => {
       // If the profilePic is already a full URL (e.g., from Google), use it directly
       if (user.profilePic.startsWith('http')) return user.profilePic;
       // Otherwise, prefix with backend URL for uploaded files
-      return `http://localhost:5000${user.profilePic}`;
+      return `${import.meta.env.VITE_API_URL}${user.profilePic}`;
     }
     return null;
   };
@@ -132,13 +132,13 @@ const Profile = () => {
       <Header />
       
       <main className="flex-1 container mx-auto px-4 py-24 max-w-4xl">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           
           {/* --- HEADER SECTION --- */}
           <div className="bg-[#1e90ff]/10 p-8 flex flex-col items-center">
             
             {/* Avatar Circle */}
-            <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-sm mb-4 relative overflow-hidden border-4 border-white">
+            <div className="w-32 h-32 shrink-0 bg-white rounded-full flex items-center justify-center shadow-sm mb-4 relative overflow-hidden border-4 border-white">
               {getProfileImage() ? (
                 <img 
                   src={getProfileImage()} 

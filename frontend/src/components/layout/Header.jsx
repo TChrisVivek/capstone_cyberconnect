@@ -50,10 +50,9 @@ export function Header() {
 
   // Helper to get image URL
   const getProfileImage = () => {
-    if (user?.profilePic) {
-      return `http://localhost:5000${user.profilePic}`;
-    }
-    return null;
+    if (!user?.profilePic) return null;
+    if (user.profilePic.startsWith('http')) return user.profilePic;
+    return `${import.meta.env.VITE_API_URL}${user.profilePic}`;
   };
 
   return (

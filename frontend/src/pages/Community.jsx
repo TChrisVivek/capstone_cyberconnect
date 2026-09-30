@@ -38,6 +38,12 @@ const Community = () => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [posts]);
 
+  const getImageUrl = (url) => {
+    if (!url) return null;
+    if (url.startsWith('http')) return url;
+    return `${import.meta.env.VITE_API_URL}${url}`;
+  };
+
   const fetchPosts = async (channel) => {
     setLoading(true);
     try {
@@ -46,6 +52,7 @@ const Community = () => {
       setPosts(response.data.reverse()); 
     } catch (error) {
       console.error("Failed to load posts", error);
+      toast({ title: "Error", description: "Failed to load community messages.", variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -166,7 +173,7 @@ const Community = () => {
             <div className="p-3 bg-gray-100/80 border-t border-gray-200 flex items-center gap-3">
                <div className="relative">
                 {currentUser.profilePic ? (
-                  <img src={`http://localhost:5000${currentUser.profilePic}`} className="w-9 h-9 rounded-md object-cover border border-gray-300" alt="User" />
+                  <img src={getImageUrl(currentUser.profilePic)} className="w-9 h-9 rounded-md object-cover border border-gray-300" alt="User" />
                 ) : (
                   <div className="w-9 h-9 bg-gradient-to-br from-[#1e90ff] to-blue-700 rounded-md flex items-center justify-center text-white shadow-sm">
                     <User className="w-5 h-5" />
@@ -246,7 +253,7 @@ const Community = () => {
                         {!isSequence ? (
                           post.user?.profilePic ? (
                             <img 
-                              src={`http://localhost:5000${post.user.profilePic}`} 
+                              src={getImageUrl(post.user.profilePic)} 
                               alt={post.user.name} 
                               className="w-10 h-10 rounded-md object-cover shadow-sm cursor-pointer" 
                             />
@@ -256,8 +263,8 @@ const Community = () => {
                             </div>
                           )
                         ) : (
-                           <div className="hidden group-hover:block text-[10px] text-gray-400 text-right pt-2">
-                            {formatDate(post.createdAt)}
+                           <div className="opacity-0 group-hover:opacity-100 text-[10px] text-gray-400 text-right pt-2 whitespace-nowrap transition-opacity duration-200 w-12 -ml-2">
+                            {new Date(post.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </div>
                         )}
                       </div>
@@ -295,7 +302,7 @@ const Community = () => {
                           )}
                           {post.image && (
                             <div className="mt-3">
-                              <img src={`http://localhost:5000${post.image}`} alt="Attachment" className="max-w-full md:max-w-md rounded-xl shadow-sm border border-gray-200" />
+                              <img src={getImageUrl(post.image)} alt="Attachment" className="max-w-full md:max-w-md rounded-xl shadow-sm border border-gray-200" />
                             </div>
                           )}
                         </div>

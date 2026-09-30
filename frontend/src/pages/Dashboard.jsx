@@ -3,11 +3,13 @@ import { Header } from '../components/layout/Header';
 import { Footer } from '../components/layout/Footer';
 import { Shield, Activity, Clock, User } from 'lucide-react';
 import api from '../lib/api';
+import { useToast } from '../hooks/use-toast';
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     // 1. Get User from Local Storage
@@ -29,6 +31,7 @@ const Dashboard = () => {
       setLogs(response.data);
     } catch (error) {
       console.error("Failed to fetch logs:", error);
+      toast({ title: "Error", description: "Failed to load activity logs.", variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -48,7 +51,7 @@ const Dashboard = () => {
         
         {/* Welcome Section */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 mb-8 flex items-center gap-6">
-          <div className="w-16 h-16 bg-[#1e90ff]/10 rounded-full flex items-center justify-center">
+          <div className="w-16 h-16 bg-[#1e90ff]/10 rounded-2xl shrink-0 flex items-center justify-center">
             <Shield className="w-8 h-8 text-[#1e90ff]" />
           </div>
           <div>
@@ -80,7 +83,7 @@ const Dashboard = () => {
                   logs.map((log) => (
                     <div key={log._id} className="p-4 hover:bg-gray-50 transition-colors flex gap-4">
                       <div className="mt-1">
-                        <div className="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center">
+                        <div className="w-8 h-8 bg-blue-50 rounded-lg shrink-0 flex items-center justify-center">
                           <Clock className="w-4 h-4 text-[#1e90ff]" />
                         </div>
                       </div>

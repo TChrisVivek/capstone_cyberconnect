@@ -66,11 +66,11 @@ const ReportIssue = () => {
       <Header />
       
       <main className="flex-1 container mx-auto px-4 py-24 max-w-2xl">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           
           {/* Header */}
           <div className="bg-red-50 p-8 border-b border-red-100 text-center">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-red-100 rounded-2xl shrink-0 flex items-center justify-center mx-auto mb-4">
               <AlertTriangle className="w-8 h-8 text-red-600" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900">Report a Cyber Issue</h1>
